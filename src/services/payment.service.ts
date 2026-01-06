@@ -37,6 +37,7 @@ export const initFedapayRecharge = async (payload: {
     transactionId: number | string;
     publicKey: string;
     token?: string;
+    paymentUrl?: string; // URL de paiement directe FedaPay
     environment?: 'live' | 'sandbox';
   };
 };

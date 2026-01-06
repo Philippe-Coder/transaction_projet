@@ -45,11 +45,14 @@ export default function RechargeModal({ onClose, onComplete }: RechargeModalProp
       setReference(result?.reference);
 
       // Rediriger vers la page de paiement FedaPay
-      if (result?.token) {
-        // Redirection vers FedaPay pour le paiement
+      if (result?.paymentUrl) {
+        // Utiliser l'URL de paiement directe fournie par FedaPay
+        window.location.href = result.paymentUrl;
+      } else if (result?.token) {
+        // Alternative : utiliser le token
         window.location.href = `https://pay.fedapay.com/${result.token}`;
       } else {
-        throw new Error('Token FedaPay non reçu');
+        throw new Error('URL de paiement FedaPay non reçue');
       }
 
     } catch (err: any) {

@@ -19,7 +19,17 @@ export default function AdminAuthFormSimple({ onClose, onSuccess }: AdminAuthFor
     setLoading(true);
 
     try {
-      await adminLogin(email, password);
+      console.log('🔐 AdminAuth: Tentative de login avec:', email);
+      const result = await adminLogin(email, password);
+      console.log('🔐 AdminAuth: Login réussi, token reçu:', !!result.access_token);
+      
+      // Stocker le token
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('admin_token', result.access_token);
+        console.log('🔐 AdminAuth: Token stocké dans localStorage');
+      }
+      
+      console.log('🔐 AdminAuth: Appel de onSuccess...');
       onSuccess();
       onClose();
     } catch (e: any) {

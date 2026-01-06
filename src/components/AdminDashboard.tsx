@@ -29,7 +29,7 @@ interface AdminDashboardProps {
 
 export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [stats, setStats] = useState<any>(null);
@@ -42,55 +42,14 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-  const [adminApiLastError, setAdminApiLastError] = useState<string | null>(null);
-  const [adminToken, setAdminToken] = useState<string | null>(null);
 
   const provider = 'FEDAPAY';
   const [apiKey, setApiKey] = useState('');
   const [secretKey, setSecretKey] = useState('');
   const [configMessage, setConfigMessage] = useState<string | null>(null);
 
-  // Afficher un écran de chargement seulement au tout début
-  if (loading && !stats && !error) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Chargement du tableau de bord admin...</p>
-          <p className="text-sm text-gray-500 mt-2">Vérification de la connexion avec le serveur</p>
-          {adminApiLastError && (
-            <p className="text-xs text-red-600 mt-3 max-w-xl mx-auto">Dernière erreur API : {adminApiLastError}</p>
-          )}
-          {adminToken && (
-            <p className="text-xs text-gray-500 mt-2">Token admin (début) : {adminToken.length > 12 ? adminToken.substring(0, 12) + '...' : adminToken}</p>
-          )}
-        </div>
-      </div>
-    );
-  }
-
-  // Afficher un écran d'erreur si aucune donnée ne peut être chargée
-  if (!stats && !loading && error) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center max-w-md p-8">
-          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 15.5c-.77.833.192 2.5 1.732 2.5z" />
-            </svg>
-          </div>
-          <h2 className="text-xl font-bold text-gray-900 mb-2">Erreur de chargement</h2>
-          <p className="text-gray-600 mb-4">{error}</p>
-          <button
-            onClick={() => void refresh()}
-            className="bg-emerald-600 text-white px-6 py-2 rounded-lg hover:bg-emerald-700 transition-colors"
-          >
-            Réessayer
-          </button>
-        </div>
-      </div>
-    );
-  }
+  // Le dashboard se charge toujours au début, mais affiche le contenu même pendant le chargement
+  // Les early returns ont été supprimés pour éviter l'erreur "Rendered fewer hooks than expected"
 
   const statCards = useMemo(() => {
     const s = stats ?? {};
@@ -127,16 +86,18 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
 
   const refresh = async () => {
     console.log('🔵 AdminDashboard: Starting refresh...');
+    console.log('🔵 AdminDashboard: Current states - loading:', loading, 'stats:', !!stats, 'error:', !!error);
     setError(null);
     setConfigMessage(null);
     setLoading(true);
+    console.log('🔵 AdminDashboard: setLoading(true) called');
 
     // Safety timeout: if refresh takes too long, show an error and stop loading
     const safetyTimer = setTimeout(() => {
       console.error('❌ AdminDashboard: Refresh timed out');
       setError('Délai de connexion dépassé. Vérifiez votre réseau et réessayez.');
       setLoading(false);
-    }, 12000); // 12s
+    }, 5000); // 5s au lieu de 12s
 
     try {
       console.log('🔵 AdminDashboard: Fetching admin data...');
@@ -192,11 +153,16 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
     } finally {
       clearTimeout(safetyTimer);
       setLoading(false);
+      console.log('🔵 AdminDashboard: setLoading(false) called in finally');
+      console.log('🔵 AdminDashboard: Final states - loading: false, stats:', !!stats, 'error:', !!error);
       console.log('🔵 AdminDashboard: Refresh completed');
     }
   };
 
   useEffect(() => {
+    console.log('🔵 AdminDashboard: useEffect triggered');
+    const adminToken = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : null;
+    console.log('🔵 AdminDashboard: Admin token found:', !!adminToken);
     let isMounted = true;
     
     const loadData = async () => {
@@ -205,19 +171,6 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
     };
     
     loadData();
-    
-    // Load last admin API error saved by the adminApi interceptor (debug only)
-    try {
-      const raw = typeof window !== 'undefined' ? localStorage.getItem('admin_api_last_error') : null;
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        setAdminApiLastError(String(parsed?.data ?? parsed?.message ?? parsed));
-      }
-      const tok = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : null;
-      if (tok) setAdminToken(tok);
-    } catch (e) {
-      // ignore
-    }
     
     return () => {
       isMounted = false;
@@ -368,6 +321,37 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Overlay de chargement */}
+      {loading && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="text-center">
+            <div className="w-12 h-12 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-gray-600">Chargement du tableau de bord admin...</p>
+          </div>
+        </div>
+      )}
+
+      {/* Overlay d'erreur */}
+      {!loading && !stats && error && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="text-center max-w-md p-8">
+            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 15.5c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
+            </div>
+            <h2 className="text-xl font-bold text-gray-900 mb-2">Erreur de chargement</h2>
+            <p className="text-gray-600 mb-4">{error}</p>
+            <button
+              onClick={() => void refresh()}
+              className="bg-emerald-600 text-white px-6 py-2 rounded-lg hover:bg-emerald-700 transition-colors"
+            >
+              Réessayer
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="flex min-h-screen">
         <aside className="hidden lg:block w-72 bg-white border-r border-gray-200">
           <Sidebar mobile={false} />

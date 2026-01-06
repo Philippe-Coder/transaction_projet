@@ -28,12 +28,18 @@ function AppContent() {
 
     const handler = () => {
       const token = localStorage.getItem('admin_token');
+      console.log('🔄 App: Storage event - token changé:', !!token);
       setAdminToken(token);
     };
 
     window.addEventListener('storage', handler);
     return () => window.removeEventListener('storage', handler);
   }, []);
+
+  // Forcer le re-rendu quand adminToken change
+  useEffect(() => {
+    console.log('🔄 App: adminToken changé, re-rendu du composant:', !!adminToken);
+  }, [adminToken]);
 
   const logoutAdmin = () => {
     if (typeof window !== 'undefined') {
@@ -86,10 +92,13 @@ function AppContent() {
         <AdminAuthFormSimple
           onClose={() => setShowAdminAuthForm(false)}
           onSuccess={() => {
-            const newToken = localStorage.getItem('admin_token');
-            setAdminToken(newToken);
+            console.log('🔄 App: onSuccess appelé, fermeture modal et redirection...');
             setShowAdminAuthForm(false);
-            navigate('/admin');
+            // Redirection directe pour éviter la race condition
+            setTimeout(() => {
+              console.log('🔄 App: Redirection vers /admin...');
+              navigate('/admin');
+            }, 100);
           }}
         />
       )}

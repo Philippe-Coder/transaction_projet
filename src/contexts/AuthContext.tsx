@@ -29,7 +29,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: ReactNode }) {
+export function AuthProvider({ children }: { children: ReactNode }): JSX.Element {
   const [user, setUser] = useState<User | null>(null);
   const [account, setAccount] = useState<Account | null>(null);
   const [token, setToken] = useState<string | null>(null);
@@ -64,23 +64,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const rawAccount = (me as any)?.account ?? (me as any)?.wallet ?? (me as any)?.accountData;
 
           const mappedAccount: Account = {
-            id: String(rawAccount?.id ?? rawAccount?.accountId ?? 'me'),
-            userId: String(
-              rawAccount?.userId ?? rawUser?.id ?? rawUser?.userId ?? 'me',
-            ),
+            id: String(rawAccount?.id ?? 'account-default'),
+            userId: String(user?.id ?? rawAccount?.userId ?? 'me'),
             balance: Number(dashboard?.balance ?? rawAccount?.balance ?? 0),
-            currency: String(rawAccount?.currency ?? 'XOF'),
+            createdAt: String(rawAccount?.createdAt ?? new Date().toISOString()),
           };
 
           const mappedUser: User = {
             id: String(rawUser?.id ?? rawUser?.userId ?? 'me'),
             email: String(rawUser?.email ?? ''),
             fullName: String(rawUser?.fullName ?? rawUser?.name ?? rawUser?.email ?? ''),
-            phoneNumber: String(rawUser?.phoneNumber ?? rawUser?.phone ?? ''),
+            phone: String(rawUser?.phone ?? rawUser?.phoneNumber ?? ''),
             profileImageUrl:
               rawUser?.profileImageUrl != null ? String(rawUser.profileImageUrl) : null,
             isActive:
-              typeof rawUser?.isActive === 'boolean' ? rawUser.isActive : undefined,
+              typeof rawUser?.isActive === 'boolean' ? rawUser.isActive : true,
+            role: (rawUser?.role as 'USER' | 'ADMIN') ?? 'USER',
+            createdAt: String(rawUser?.createdAt ?? new Date().toISOString()),
           };
 
           setAccount(mappedAccount);
@@ -238,18 +238,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         rawAccount?.userId ?? rawUser?.id ?? rawUser?.userId ?? 'me',
       ),
       balance: Number(dashboard?.balance ?? rawAccount?.balance ?? 0),
-      currency: String(rawAccount?.currency ?? 'XOF'),
+      createdAt: String(rawAccount?.createdAt ?? new Date().toISOString()),
     };
 
     const mappedUser: User = {
       id: String(rawUser?.id ?? rawUser?.userId ?? 'me'),
       email: String(rawUser?.email ?? ''),
       fullName: String(rawUser?.fullName ?? rawUser?.name ?? rawUser?.email ?? ''),
-      phoneNumber: String(rawUser?.phoneNumber ?? rawUser?.phone ?? ''),
+      phone: String(rawUser?.phone ?? rawUser?.phoneNumber ?? ''),
       profileImageUrl:
         rawUser?.profileImageUrl != null ? String(rawUser.profileImageUrl) : null,
       isActive:
-        typeof rawUser?.isActive === 'boolean' ? rawUser.isActive : undefined,
+        typeof rawUser?.isActive === 'boolean' ? rawUser.isActive : true,
+      role: (rawUser?.role as 'USER' | 'ADMIN') ?? 'USER',
+      createdAt: String(rawUser?.createdAt ?? new Date().toISOString()),
     };
 
     setUser(mappedUser);
