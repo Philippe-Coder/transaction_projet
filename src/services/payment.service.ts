@@ -22,12 +22,10 @@ export const getPaymentsDashboard = async () => {
 
 export const initFedapayRecharge = async (payload: {
   amount: number;
-  customerCountry: FedapayCountry;
   callbackUrl?: string;
 }) => {
-  const res = await api.post('/payments/fedapay/init', {
-    amount: payload.amount,
-    customerCountry: payload.customerCountry,
+  const res = await api.post('/payments/fedapay/recharge', {
+    amount: Math.round(payload.amount),
     ...(payload.callbackUrl ? { callbackUrl: payload.callbackUrl } : {}),
   });
 
@@ -37,8 +35,15 @@ export const initFedapayRecharge = async (payload: {
     transactionId: number | string;
     publicKey: string;
     token?: string;
-    paymentUrl?: string; // URL de paiement directe FedaPay
+    paymentUrl?: string;
     environment?: 'live' | 'sandbox';
+    paymentMethod?: string;
+    customerPhone?: string;
+    detectedCountry?: string;
+    mobileOperator?: string;
+    operatorName?: string;
+    message?: string;
+    status?: string;
   };
 };
 

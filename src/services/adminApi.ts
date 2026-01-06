@@ -23,9 +23,9 @@ adminApi.interceptors.request.use((config) => {
       ? localStorage.getItem('admin_token')
       : null;
 
-  console.log('🔵 adminApi: Making request to:', config.url);
-  console.log('🔵 adminApi: Token exists:', !!token);
-  console.log('🔵 adminApi: Token (first 20 chars):', token ? token.substring(0, 20) + '...' : 'none');
+  console.log(' adminApi: Making request to:', config.url);
+  console.log(' adminApi: Token exists:', !!token);
+  console.log(' adminApi: Token (first 20 chars):', token ? token.substring(0, 20) + '...' : 'none');
 
   if (token) {
     config.headers = config.headers ?? {};
@@ -37,21 +37,21 @@ adminApi.interceptors.request.use((config) => {
 
 adminApi.interceptors.response.use(
   (response) => {
-    console.log('🔵 adminApi: Response success for:', response.config.url, 'Status:', response.status);
+    console.log(' adminApi: Response success for:', response.config.url, 'Status:', response.status);
     return response;
   },
   (error) => {
     const url = error?.config?.url ?? '<unknown>';
     const status = error?.response?.status;
-    console.error('❌ adminApi: Response error for:', url, 'Status:', status ?? 'no-status');
+    console.error(' adminApi: Response error for:', url, 'Status:', status ?? 'no-status');
 
     if (error?.code === 'ECONNABORTED') {
-      console.error('❌ adminApi: Request timeout or aborted for:', url);
+      console.error(' adminApi: Request timeout or aborted for:', url);
       return Promise.reject(new Error('Request timeout'));
     }
 
     if (error?.response) {
-      console.error('❌ adminApi: Error data:', error.response.data);
+      console.error(' adminApi: Error data:', error.response.data);
       try {
         if (typeof window !== 'undefined' && window.localStorage) {
           const last = {
@@ -68,7 +68,7 @@ adminApi.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    console.error('❌ adminApi: Network or unknown error:', error);
+    console.error(' adminApi: Network or unknown error:', error);
     try {
       if (typeof window !== 'undefined' && window.localStorage) {
         const last = { url, status: null, data: String(error), timestamp: Date.now() };
