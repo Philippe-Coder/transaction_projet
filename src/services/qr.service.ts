@@ -1,3 +1,4 @@
+import { api } from './api';
 import QRCode from 'qrcode';
 
 export interface QRCodeData {
@@ -7,7 +8,19 @@ export interface QRCodeData {
   timestamp: number;
 }
 
-export const generateQRCode = async (userData: QRCodeData): Promise<string> => {
+export interface QRGenerateResponse {
+  qrCodeUrl: string;
+  expiresAt: string;
+}
+
+// Génération QR via le backend
+export const generateQR = async (data?: any) => {
+  const res = await api.post('/qr/generate', data);
+  return res.data as QRGenerateResponse;
+};
+
+// Génération QR locale (fallback)
+export const generateLocalQRCode = async (userData: QRCodeData): Promise<string> => {
   try {
     const qrData = JSON.stringify(userData);
     return await QRCode.toDataURL(qrData, {

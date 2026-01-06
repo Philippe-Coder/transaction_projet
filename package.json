@@ -1,14 +1,19 @@
 {
-  "name": "vite-react-typescript-starter",
+  "name": "transaction-app",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "Plateforme de transfert d'argent avec FedaPay",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
-    "lint": "eslint .",
+    "build": "tsc && vite build",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit -p tsconfig.app.json"
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint:fix": "eslint . --ext ts,tsx --fix",
+    "typecheck": "tsc --noEmit -p tsconfig.app.json",
+    "clean": "rm -rf dist node_modules",
+    "setup": "node scripts/setup.js",
+    "test": "echo \"Tests à implémenter\" && exit 0"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",
@@ -37,5 +42,17 @@
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.3.0",
     "vite": "^7.3.0"
-  }
+  },
+  "keywords": [
+    "react",
+    "typescript",
+    "vite",
+    "tailwindcss",
+    "fedapay",
+    "mobile-money",
+    "transfert-argent",
+    "payment"
+  ],
+  "author": "Transaction App Team",
+  "license": "MIT"
 }

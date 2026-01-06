@@ -2,31 +2,55 @@ export interface User {
   id: string;
   email: string;
   fullName: string;
-  phoneNumber: string;
-  phone?: string; // Alias pour phoneNumber
+  phone: string;
   profileImageUrl?: string | null;
   isActive?: boolean;
   role?: 'USER' | 'ADMIN';
   createdAt?: string;
-  balance?: number; // Solde du compte
 }
 
 export interface Account {
   id: string;
   userId: string;
   balance: number;
-  currency: string;
+  createdAt?: string;
 }
 
 export interface Transaction {
   id: string;
-  fromAccountId: string | null;
-  toAccountId: string | null;
+  type: 'TRANSFER' | 'RECHARGE';
   amount: number;
-  type: 'recharge' | 'transfer' | 'receive';
-  status: 'pending' | 'completed' | 'failed';
-  description: string;
+  status: 'SUCCESS' | 'PENDING' | 'FAILED';
   createdAt: string;
-  recipientName?: string;
-  senderName?: string;
+  accountId: string;
+  account?: {
+    id: string;
+    userId: string;
+    user?: {
+      id: string;
+      email: string;
+      role: string;
+    };
+  };
+}
+
+export interface Payment {
+  id: string;
+  provider: string;
+  amount: number;
+  reference: string;
+  status: 'SUCCESS' | 'PENDING' | 'FAILED';
+  createdAt: string;
+  userId: string;
+  user?: {
+    id: string;
+    email: string;
+    role: string;
+  };
+}
+
+export interface Dashboard {
+  balance: number;
+  transactions: Transaction[];
+  payments: Payment[];
 }

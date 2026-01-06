@@ -1,5 +1,23 @@
 import { api } from './api';
 
+// Logout endpoint
+export const logout = async () => {
+  const res = await api.post('/auth/logout');
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem('token');
+  }
+  return res.data;
+};
+
+// Admin logout endpoint
+export const adminLogout = async () => {
+  const res = await api.post('/auth/logout');
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem('admin_token');
+  }
+  return res.data;
+};
+
 // Services utilisateur
 export const getMe = async () => {
   const res = await api.get('/users/me');
@@ -9,12 +27,10 @@ export const getMe = async () => {
 export const updateProfile = async (data: {
   fullName: string;
   phone: string;
-  phoneNumber?: string;
 }) => {
   const res = await api.put('/users/me', {
     fullName: data.fullName,
     phone: data.phone,
-    phoneNumber: data.phoneNumber || data.phone
   });
   return res.data;
 };
@@ -47,12 +63,10 @@ export const getAdminProfile = async () => {
 export const updateAdminProfile = async (data: {
   fullName: string;
   phone: string;
-  phoneNumber?: string;
 }) => {
   const res = await api.put('/admin/profile', {
     fullName: data.fullName,
     phone: data.phone,
-    phoneNumber: data.phoneNumber || data.phone
   });
   return res.data;
 };

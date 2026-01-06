@@ -29,3 +29,34 @@ api.interceptors.request.use((config) => {
 
   return config;
 });
+
+api.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    const url = error?.config?.url ?? '<unknown>';
+    const status = error?.response?.status;
+
+    if (error?.response) {
+      // Gérer les erreurs HTTP standards
+      if (status === 401) {
+        // Token expiré ou invalide
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('token');
+          // Rediriger vers la page de login si nécessaire
+          window.location.href = '/login';
+        }
+      }
+      
+      // Logger l'erreur pour le debugging
+      console.error(`API Error [${status}] on ${url}:`, error.response.data);
+      
+      return Promise.reject(error);
+    }
+
+    // Erreurs réseau ou autres
+    console.error(`Network error on ${url}:`, error);
+    return Promise.reject(error);
+  }
+);

@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, User, Mail, Phone, Calendar, Shield } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
@@ -63,7 +62,7 @@ export default function ProfilePage() {
                   <Phone className="w-5 h-5 text-gray-400" />
                   <div>
                     <p className="text-sm text-gray-500">Téléphone</p>
-                    <p className="font-medium text-gray-900">{user?.phoneNumber || 'Non renseigné'}</p>
+                    <p className="font-medium text-gray-900">{user?.phone || 'Non renseigné'}</p>
                   </div>
                 </div>
 

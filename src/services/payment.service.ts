@@ -41,52 +41,30 @@ export const initFedapayRecharge = async (payload: {
   };
 };
 
-export const createPayment = async (data: {
-  amount: number;
-  method: 'card' | 'mobile';
-  description: string;
-  cardNumber?: string;
-  cardExpiry?: string;
-  cardCvv?: string;
-  cardHolder?: string;
-  phoneNumber?: string;
-  operator?: string;
-}) => {
-  const res = await api.post('/payments/create', data);
+// Vérifier le statut d'une recharge FedaPay
+export const getRechargeStatus = async (paymentId: string) => {
+  const res = await api.get(`/payments/fedapay/status/recharge/${paymentId}`);
   return res.data;
 };
 
-export const createTransfer = async (data: {
-  amount: number;
-  recipient: string;
-  description: string;
-  method: 'card' | 'mobile';
-  cardNumber?: string;
-  cardExpiry?: string;
-  cardCvv?: string;
-  cardHolder?: string;
-  phoneNumber?: string;
-  operator?: string;
-}) => {
-  const res = await api.post('/transfers/create', data);
+// Vérifier le statut d'une transaction FedaPay
+export const getTransactionStatus = async (transactionId: string) => {
+  const res = await api.get(`/payments/fedapay/status/transaction/${transactionId}`);
   return res.data;
 };
 
-// Vérifier le statut d'une transaction via le backend
-export const getTransactionStatus = async (transactionId: number) => {
-  const res = await api.get(`/payments/transaction-status/${transactionId}`);
-  return res.data;
-};
-
-// Configuration FedaPay via le backend
+// Configuration FedaPay via le backend (utilise l'endpoint générique)
 export const configureFedaPay = (config: {
   apiKey: string;
   secretKey: string;
-  environment: 'sandbox' | 'live';
 }) => {
-  return api.post('/admin/fedapay/config', config);
+  return api.post('/admin/config', {
+    provider: 'FEDAPAY',
+    apiKey: config.apiKey,
+    secretKey: config.secretKey
+  });
 };
 
 export const getFedaPayConfig = () => {
-  return api.get('/admin/fedapay/config');
+  return api.get('/admin/config');
 };

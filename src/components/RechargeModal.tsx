@@ -1,8 +1,6 @@
 import { useState } from 'react';
-import { X, Smartphone, ExternalLink } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
+import { X, Smartphone, ArrowDownLeft } from 'lucide-react';
 import { initFedapayRecharge, FedapayCountry } from '../services/payment.service';
-import StatusPage from './StatusPage';
 
 interface RechargeModalProps {
   onClose: () => void;
@@ -147,17 +145,62 @@ export default function RechargeModal({ onClose, onComplete }: RechargeModalProp
           </form>
         )}
         {status !== 'form' && (
-          <StatusPage
-            status={status}
-            type="recharge"
-            amount={parseFloat(amount)}
-            reference={reference}
-            onRetry={() => {
-              setStatus('form');
-              setError('');
-            }}
-            onClose={onClose}
-          />
+          <div className="text-center py-8">
+            {status === 'pending' && (
+              <div className="space-y-4">
+                <div className="w-12 h-12 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
+                <p className="text-gray-600">Paiement en cours...</p>
+              </div>
+            )}
+            
+            {status === 'success' && (
+              <div className="space-y-4">
+                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+                  <ArrowDownLeft className="w-6 h-6 text-green-600" />
+                </div>
+                <p className="text-green-600 font-medium">Recharge réussie!</p>
+                <p className="text-gray-600 text-sm">{reference}</p>
+                <button
+                  onClick={() => {
+                    if (onComplete && amount) {
+                      onComplete(parseFloat(amount));
+                    }
+                    onClose();
+                  }}
+                  className="bg-emerald-600 text-white px-6 py-2 rounded-lg hover:bg-emerald-700"
+                >
+                  Fermer
+                </button>
+              </div>
+            )}
+            
+            {status === 'failed' && (
+              <div className="space-y-4">
+                <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto">
+                  <X className="w-6 h-6 text-red-600" />
+                </div>
+                <p className="text-red-600 font-medium">Paiement échoué</p>
+                {error && <p className="text-gray-600 text-sm">{error}</p>}
+                <div className="flex gap-3 justify-center">
+                  <button
+                    onClick={() => {
+                      setStatus('form');
+                      setError('');
+                    }}
+                    className="border px-4 py-2 rounded-lg hover:bg-gray-50"
+                  >
+                    Réessayer
+                  </button>
+                  <button
+                    onClick={onClose}
+                    className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700"
+                  >
+                    Fermer
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         )}
       </div>
     </div>
